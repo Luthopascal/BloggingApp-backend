@@ -257,7 +257,69 @@ const updateblogposts = async (req, res) => {
 };
 
 
+//delete blog post function can be added similarly
+const deleteBlogPost = async (req, res) => {
+ try{
+
+const { id } = req.params; // object ID
+const blog = await BlogPost.findByIdAndDelete(req.params.id);
+if (!blog) {
+  return res.status(404).json({ success: false, message: 'Blog post not found' });
+}
+
+if (blog.author.toString() !== req.user.id) {
+  return res.status(403).json({
+    success: false,
+    message: 'You are not authorized to update this post'
+  });
+} //checks if its the actual author before deleting.
+
+
+
+return res.status(200).json({success:true, message: 'Blog post deleted successfully' });
+
+ } catch(err){
+  return res.status(500).json({
+    success: false,
+    message: err.message
+  });
+  // Implementation for deleting a blog post
+}};
+
+
+//Get all the blog posts
+
+
+// GET all blog posts
+const getAllBlogs = async (req, res) => {
+  try {
+    // Fetch all blogs and populate the author info if you want
+    const blogs = await BlogPost.find().populate("author", "username email");
+
+    if (!blogs || blogs.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No blog posts found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: blogs.length,
+      blogs,
+    });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+
+
 
 
 // Export the function AFTER defining it
-module.exports = { registerUser , loginUser, blogPost, NewPost, logoutUser, updateblogposts}; // export both and import into routes file
+module.exports = { registerUser , loginUser, blogPost, NewPost, logoutUser, updateblogposts,deleteBlogPost, getAllBlogs}; // export both and import into routes file
