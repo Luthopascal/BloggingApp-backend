@@ -19,12 +19,12 @@ const authroutes = require("./routes/routes/authRoute"); // Import authenticatio
 connectDB(); // Connect to the database
 
 const app = express(); // Create an Express application (initialise app)
-
+const cors = require('cors'); // Import CORS middleware to handle Cross-Origin Resource Sharing
 app.use(express.json()); // Middleware to parse JSON request bodies
 //NEEDED TO PARSE(EXAMINE / ANALYSE) JSON DATA FROM REQUESTS
 // MIDDLEWARE THAT ALLOWS JSON TO BE READ AND UNDERSTOOD BY THE SERVER IN REQUEST BODIES (FROM JSON TO JAVASCRIPT OBJECTS)
 
-
+app.use(cors()); // Enable CORS for all routess
 
 const startServer = async () => {
     try {
