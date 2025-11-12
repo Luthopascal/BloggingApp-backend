@@ -93,7 +93,7 @@ const token = jwt.sign({id:user._id}, "LNXsecret", {expiresIn:'1h'})    //create
 }
 
 
-//PUT A BLOG POST (CREATE NEW BLOG POST) (protected route)
+// PUT A BLOG POST (CREATE NEW BLOG POST) (protected route)
 const NewPost = async (req, res) => {
   try {
     const { title, subtitle, content } = req.body;
@@ -106,8 +106,11 @@ const NewPost = async (req, res) => {
       });
     }
 
-    // Get author from JWT token
-    const author = req.user_id;
+    // Get author from JWT token - FIXED!
+    // authMiddleware sets req.user = decoded, where decoded.id is the user ID
+    const author = req.user.id;  // Changed from req.user_id to req.user.id
+
+    console.log('📝 Creating post with author:', author);
 
     // Get image URL if file was uploaded (OPTIONAL)
     let imageUrl = null;
@@ -127,6 +130,8 @@ const NewPost = async (req, res) => {
 
     await newBlogPost.save();
 
+    console.log('✅ Post created successfully with author:', newBlogPost.author);
+
     return res.status(201).json({
       success: true,
       message: 'Blog post created successfully',
@@ -134,7 +139,7 @@ const NewPost = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Error creating blog post:', err);
+    console.error('❌ Error creating blog post:', err);
     return res.status(500).json({
       success: false,
       message: err.message
@@ -142,13 +147,13 @@ const NewPost = async (req, res) => {
   }
 };
 
-//GET A BLOG POST (protected route)
+// GET single blog post by ID
 const blogPost = async (req, res) => {
   try {
-    const { id } = req.params; // get id from URL
-    console.log("ID from params:", id);
+    const { id } = req.params;
+    console.log("📝 Fetching blog ID:", id);
 
-    // Validate that it's a proper MongoDB ObjectId
+    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -156,8 +161,9 @@ const blogPost = async (req, res) => {
       });
     }
 
-    const post = await BlogPost.findById(id).populate('author', 'name email'); // optional: populate author
-    console.log('Found post:', post); // Debug
+    // Populate author when fetching single post
+    const post = await BlogPost.findById(id).populate('author', 'username email');
+    console.log('📝 Found post:', post);
 
     if (!post) {
       return res.status(404).json({
@@ -171,6 +177,7 @@ const blogPost = async (req, res) => {
       data: post
     });
   } catch (err) {
+    console.error("❌ Error fetching blog post:", err);
     return res.status(500).json({
       success: false,
       message: err.message
@@ -308,33 +315,46 @@ return res.status(200).json({success:true, message: 'Blog post deleted successfu
 //Get all the blog posts
 
 
-// GET all blog posts
 const getAllBlogs = async (req, res) => {
   try {
-    // Fetch all blogs and populate the author info if you want
-    const blogs = await BlogPost.find().populate("author", "username email");
+    // Fetch all blogs and populate the author info
+    const blogs = await BlogPost.find()
+      .populate("author", "username email")
+      .sort({ createdAt: -1 }); // Most recent first
+
+    // DEBUG: Check if author is populated
+    console.log('📋 Total blogs found:', blogs.length);
+    if (blogs.length > 0) {
+      console.log('📋 Sample blog:', {
+        id: blogs[0]._id,
+        title: blogs[0].title,
+        author: blogs[0].author,
+        authorType: typeof blogs[0].author
+      });
+    }
 
     if (!blogs || blogs.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No blog posts found",
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        blogs: [],
+        message: "No blog posts found"
       });
     }
 
     return res.status(200).json({
       success: true,
       count: blogs.length,
-      blogs,
+      blogs
     });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
+    console.error("❌ Error fetching blogs:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error"
     });
   }
 };
-
 
 
 
