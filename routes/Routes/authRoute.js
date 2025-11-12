@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const { registerUser, loginUser, NewPost , blogPost, logoutUser, updateblogposts, deleteBlogPost, getAllBlogs} = require("../../Controllers/authController"); // Import the register function from the authController
 //const { } = require("../../Middleware/authMiddleware"); // Import the authMiddleware (not used here but can be applied to protect routes)
 const authMiddleware = require("../../Middleware/authMiddleware");
+const upload = require("../../Config/multerConfig"); // Import multer config
+
 
 const router = express.Router(); // Create a new router object
 
@@ -13,7 +15,7 @@ router.post("/register", registerUser)  // Define a POST route for user registra
 
 router.post("/login",loginUser)  // Define a POST route for user login (functionality to be implemented)
 
-router.post("/NewBlogPost",authMiddleware, NewPost)  // Define a POST route for creating a new blog post (functionality to be implemented)
+router.post("/NewBlogPost", authMiddleware, upload.single('coverImage'), NewPost); //route to create a new blog post with image upload
 
 router.get('/BlogPost/:id',authMiddleware, blogPost)  // Define a GET route for fetching a blog post by title (functionality to be implemented)
 

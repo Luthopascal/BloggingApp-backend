@@ -12,6 +12,11 @@
 const express = require("express");// Import Express framework
 const jwt = require('jsonwebtoken'); // Import JSON Web Token library for token generation and verification
 require("dotenv").config(); // Load environment variables from .env file (our database connection string)
+const dotenv = require("dotenv");
+const path = require('path');
+const fs = require('fs');
+
+dotenv.config({ path: path.join(__dirname, 'BACKEND', '.env') });
 
 const connectDB = require("./Config/database"); // Import database connection function
 //const express = require("express");
@@ -24,7 +29,16 @@ app.use(express.json()); // Middleware to parse JSON request bodies
 //NEEDED TO PARSE(EXAMINE / ANALYSE) JSON DATA FROM REQUESTS
 // MIDDLEWARE THAT ALLOWS JSON TO BE READ AND UNDERSTOOD BY THE SERVER IN REQUEST BODIES (FROM JSON TO JAVASCRIPT OBJECTS)
 
-app.use(cors()); // Enable CORS for all routess
+app.use(cors()); // Enable CORS for all routes
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+const uploadDir = path.join(__dirname, 'uploads', 'blog-covers');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('✅ Created uploads/blog-covers directory')
+}
 
 const startServer = async () => {
     try {

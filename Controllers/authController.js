@@ -94,35 +94,53 @@ const token = jwt.sign({id:user._id}, "LNXsecret", {expiresIn:'1h'})    //create
 
 
 //PUT A BLOG POST (CREATE NEW BLOG POST) (protected route)
-const NewPost = async (req,res) => {
+const NewPost = async (req, res) => {
   try {
-    const {title,content} = req.body;
-    //validation
-    if (!title || !content){
+    const { title, subtitle, content } = req.body;
+    
+    // Validation
+    if (!title || !content) {
       return res.status(400).json({
-        success:false,
-        message: 'All fields are required'
-      })
+        success: false,
+        message: 'Title and content are required'
+      });
     }
-    const author = req.user_id; // get from JWT, not body
 
-    const newBlogPost = new BlogPost ({ //take data from request body ans save it in new blog post and save to DB
+    // Get author from JWT token
+    const author = req.user_id;
+
+    // Get image URL if file was uploaded (OPTIONAL)
+    let imageUrl = null;
+    if (req.file) {
+      // Store relative path to image
+      imageUrl = `/uploads/blog-covers/${req.file.filename}`;
+    }
+
+    // Create new blog post (with or without image)
+    const newBlogPost = new BlogPost({
       title,
+      subtitle: subtitle || '',
       content,
+      imageUrl, // Will be null if no image uploaded
       author
-    });  await newBlogPost.save(); //save to DB
+    });
+
+    await newBlogPost.save();
+
     return res.status(201).json({
       success: true,
       message: 'Blog post created successfully',
-      data: newBlogPost});
-  }
-  catch(err){
+      data: newBlogPost
+    });
+
+  } catch (err) {
+    console.error('Error creating blog post:', err);
     return res.status(500).json({
       success: false,
       message: err.message
-    })
+    });
   }
-}
+};
 
 //GET A BLOG POST (protected route)
 const blogPost = async (req, res) => {
