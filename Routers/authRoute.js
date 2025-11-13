@@ -3,10 +3,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 //const {register} = require("../Controllers/authController");
-const { registerUser, loginUser, NewPost , blogPost, logoutUser, updateblogposts, deleteBlogPost, getAllBlogs} = require("../../Controllers/authController"); // Import the register function from the authController
+const { registerUser, loginUser, NewPost , blogPost, logoutUser, updateblogposts, deleteBlogPost, getAllBlogs} = require("../Controllers/authController"); // Import the register function from the authController
 //const { } = require("../../Middleware/authMiddleware"); // Import the authMiddleware (not used here but can be applied to protect routes)
-const authMiddleware = require("../../Middleware/authMiddleware");
-const upload = require("../../Config/multerConfig"); // Import multer config
+const authMiddleware = require("../Middleware/authMiddleware");
+const upload = require("../Config/multerConfig"); // Import multer config
 
 
 const router = express.Router(); // Create a new router object

@@ -20,7 +20,7 @@ dotenv.config({ path: path.join(__dirname, 'BACKEND', '.env') });
 
 const connectDB = require("./Config/database"); // Import database connection function
 //const express = require("express");
-const authroutes = require("./routes/routes/authRoute"); // Import authentication routes
+const authroutes = require("./Routers/authRoute"); // Import authentication routes
 connectDB(); // Connect to the database
 
 const app = express(); // Create an Express application (initialise app)
